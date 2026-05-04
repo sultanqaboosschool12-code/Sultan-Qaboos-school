@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ar" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<title>الأخبار - مدرسة السلطان قابوس</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --blue: #3498db;
+    --cyan: #00c6ff;
+    --card-bg: #ffffff;
+    --text: #1a1a2e;
+    --text-muted: #6b7280;
+    --shadow: 0 20px 60px rgba(0,0,0,0.1);
+    --radius: 18px;
+}
+
+body {
+    font-family: "Cairo", sans-serif;
+    direction: rtl;
+    background: #f0f4f8;
+    color: var(--text);
+    opacity: 0;
+    transition: opacity 0.5s ease, background 0.4s;
+}
+body.loaded { opacity: 1; }
+body.dark {
+    background: #0d0d0d;
+    color: #e5e7eb;
+    --card-bg: #161b27;
+    --text-muted: #9ca3af;
+    --shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+body.ltr {
+    direction: ltr;
+    font-family: 'Segoe UI', 'Cairo', sans-serif;
+}
+
+/* ===== Navbar ===== */
+.navbar {
+    position: fixed !important;
+    top: 15px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 96% !important;
+    max-width: 1400px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: clamp(12px, 1.5vw, 18px) clamp(20px, 3vw, 40px) !important;
+    background: rgba(44, 62, 80, 0.75) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important;
+    z-index: 1000 !important;
+    transition: top 0.4s, background 0.4s !important;
+}
+.logo {
+    color: white;
+    font-weight: 700;
+    font-size: clamp(13px, 1.3vw, 18px);
+    flex-shrink: 0;
+}
+.nav-links {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+.nav-links a {
+    color: rgba(255,255,255,0.85);
+    text-decoration: none;
+    padding: clamp(5px, 0.6vw, 8px) clamp(8px, 1vw, 16px);
+    border-radius: 10px;
+    font-size: clamp(12px, 1vw, 15px);
+    font-weight: 600;
+    transition: 0.3s;
+    white-space: nowrap;
+}
+.nav-links a:hover, .nav-links a.active {
+    background: linear-gradient(45deg, var(--blue), var(--cyan));
+    color: white;
+}
+
+/* ===== Translate Button in Navbar ===== */
+#translateBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    font-size: clamp(11px, 0.9vw, 13px);
+    font-weight: 700;
+    font-family: 'Cairo', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(102,126,234,0.5);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-right: 6px;
+}
+body.ltr #translateBtn { margin-right: 0; margin-left: 6px; }
+#translateBtn:hover {
+    transform: scale(1.07) translateY(-1px);
+    box-shadow: 0 8px 20px rgba(102,126,234,0.65);
+}
+#translateBtn .t-icon { font-size: 15px; transition: transform 0.4s ease; }
+#translateBtn:hover .t-icon { transform: rotate(25deg) scale(1.15); }
+
+/* Translation overlay */
+#translateOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(102,126,234,0.12);
+    backdrop-filter: blur(4px);
+    z-index: 9998;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+}
+#translateOverlay.show { display: flex; }
+.translate-spinner {
+    width: 48px; height: 48px;
+    border: 4px solid rgba(255,255,255,0.3);
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.translate-overlay-text {
+    color: #1a1a2e;
+    font-size: 15px; font-weight: 700;
+    font-family: 'Cairo', sans-serif;
+    background: white;
+    padding: 10px 24px;
+    border-radius: 50px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+body.dark .translate-overlay-text { background: #1e293b; color: #e2e8f0; }
+
+/* ===== Hero ===== */
+.hero {
+    margin-top: 100px;
+    padding: clamp(60px, 8vh, 100px) 20px clamp(40px, 5vh, 60px);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.hero::before {
+    content: "";
+    position: absolute;
+    top: -50%; left: 50%;
+    transform: translateX(-50%);
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(52,152,219,0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+.hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(45deg, rgba(52,152,219,0.12), rgba(0,198,255,0.12));
+    border: 1px solid rgba(52,152,219,0.3);
+    color: var(--blue);
+    padding: 6px 18px;
+    border-radius: 50px;
+    font-size: clamp(11px, 1vw, 13px);
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+body.dark .hero-tag { color: var(--cyan); }
+.hero h1 {
+    font-size: clamp(28px, 5vw, 56px);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--blue), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 14px;
+}
+.hero p {
+    font-size: clamp(13px, 1.4vw, 17px);
+    color: var(--text-muted);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.8;
+}
+
+/* ===== Filter ===== */
+.filter-bar {
+    display: flex;
+    justify-content: center;
+    gap: clamp(6px, 1vw, 14px);
+    flex-wrap: wrap;
+    padding: 10px 20px clamp(20px, 3vh, 36px);
+}
+.filter-btn {
+    padding: clamp(6px, 0.8vw, 10px) clamp(14px, 1.5vw, 26px);
+    border-radius: 50px;
+    border: 1.5px solid rgba(52,152,219,0.3);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: Cairo, sans-serif;
+    font-size: clamp(11px, 0.9vw, 14px);
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.filter-btn:hover, .filter-btn.active {
+    background: linear-gradient(45deg, var(--blue), var(--cyan));
+    border-color: transparent;
+    color: white;
+}
+
+/* ===== News Grid ===== */
+.news-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 90vw), 1fr)) !important;
+    gap: clamp(16px, 2vw, 28px) !important;
+    max-width: min(1300px, 95vw) !important;
+    margin: 0 auto !important;
+    padding: clamp(12px, 2vw, 30px) clamp(16px, 3vw, 40px) 60px !important;
+}
+
+/* ===== News Card ===== */
+.news-card {
+    background: var(--card-bg);
+    border-radius: clamp(10px, 1.2vw, 18px);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275), box-shadow 0.4s, background 0.4s;
+    border: 1px solid rgba(0,0,0,0.05);
+    opacity: 0;
+    transform: translateY(40px);
+    animation: cardIn 0.6s ease forwards;
+}
+body.dark .news-card { border-color: rgba(255,255,255,0.05); }
+.news-card:nth-child(1){animation-delay:0.1s}
+.news-card:nth-child(2){animation-delay:0.2s}
+.news-card:nth-child(3){animation-delay:0.3s}
+.news-card:nth-child(4){animation-delay:0.4s}
+.news-card:nth-child(5){animation-delay:0.5s}
+.news-card:nth-child(6){animation-delay:0.6s}
+@keyframes cardIn { to { opacity: 1; transform: translateY(0); } }
+.news-card:hover { transform: translateY(-10px); box-shadow: 0 40px 80px rgba(52,152,219,0.2); }
+
+.news-img { height: 8px; background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+.news-body { padding: clamp(16px, 2vw, 24px); }
+.news-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.news-category {
+    font-size: 11px; font-weight: 700;
+    padding: 4px 12px; border-radius: 50px;
+    background: linear-gradient(45deg, rgba(52,152,219,0.1), rgba(0,198,255,0.1));
+    color: var(--blue);
+    border: 1px solid rgba(52,152,219,0.2);
+}
+body.dark .news-category { color: var(--cyan); }
+.news-date { font-size: 12px; color: var(--text-muted); }
+.news-card h3 { font-size: clamp(14px, 1.2vw, 18px); font-weight: 700; line-height: 1.5; margin-bottom: 10px; }
+body.dark .news-card h3 { color: #f1f5f9; }
+.news-card p { font-size: clamp(12px, 1vw, 14px); color: var(--text-muted); line-height: 1.8; margin-bottom: 18px; }
+.news-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+}
+body.dark .news-footer { border-color: rgba(255,255,255,0.06); }
+.read-more {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 700;
+    color: var(--blue); text-decoration: none; transition: 0.3s;
+}
+body.dark .read-more { color: var(--cyan); }
+.read-more:hover { gap: 10px; }
+.read-more svg { width: 15px; height: 15px; }
+.news-views { font-size: 12px; color: var(--text-muted); }
+
+/* ===== Footer ===== */
+.page-footer {
+    background: linear-gradient(135deg, #2c3e50, #1a252f);
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 14px;
+    line-height: 2;
+}
+.page-footer strong { color: white; }
+
+/* ===== Dark button ===== */
+#modeBtn {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2c3e50, #1a252f);
+    color: white; border: none;
+    font-size: 20px; cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    z-index: 999; transition: 0.3s;
+    display: flex; align-items: center; justify-content: center;
+}
+#modeBtn:hover { transform: scale(1.1) rotate(20deg); }
+
+/* ===== AI ===== */
+#aiFab {
+    position: fixed;
+    bottom: 24px; left: 24px;
+    width: clamp(48px, 5vw, 62px); height: clamp(48px, 5vw, 62px);
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--cyan));
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(20px, 2vw, 28px); color: white; cursor: pointer;
+    box-shadow: 0 8px 30px rgba(52,152,219,0.5);
+    z-index: 9999; transition: 0.3s; border: none;
+}
+#aiFab:hover { transform: scale(1.12); }
+
+#aiPanel {
+    position: fixed;
+    bottom: 94px; left: 24px;
+    width: clamp(300px, 90vw, 380px); height: clamp(400px, 70vh, 520px);
+    border-radius: 20px; overflow: hidden;
+    display: none; flex-direction: column;
+    z-index: 9999;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+    animation: panelIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+@keyframes panelIn {
+    from { opacity: 0; transform: scale(0.85) translateY(20px); transform-origin: bottom left; }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+#aiTop {
+    background: linear-gradient(135deg, #1a6dbc, #00a8d6);
+    padding: 16px 18px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-shrink: 0;
+}
+.ai-info { display: flex; align-items: center; gap: 12px; }
+.ai-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.ai-name { color: white; font-weight: 700; font-size: 14px; }
+.ai-status { color: rgba(255,255,255,0.75); font-size: 11px; display: flex; align-items: center; gap: 5px; }
+.ai-status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #4ade80; display: inline-block; }
+.ai-badge { font-size: 10px; background: rgba(255,255,255,0.2); color: white; padding: 3px 10px; border-radius: 50px; font-weight: 600; }
+.aiClose { width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(255,255,255,0.15); color: white; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+.aiClose:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
+#aiBody { flex: 1; padding: 16px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; }
+body.dark #aiBody { background: #0f172a; }
+.msg-user { align-self: flex-end; background: linear-gradient(135deg, var(--blue), var(--cyan)); color: white; padding: 10px 15px; border-radius: 18px 18px 4px 18px; font-size: 13px; max-width: 80%; line-height: 1.6; }
+.msg-ai { align-self: flex-start; background: white; border: 1px solid rgba(0,0,0,0.07); color: #1e293b; padding: 10px 15px; border-radius: 18px 18px 18px 4px; font-size: 13px; max-width: 85%; line-height: 1.7; }
+body.dark .msg-ai { background: #1e293b; color: #e2e8f0; border-color: rgba(255,255,255,0.08); }
+.typing-dots { display: flex; gap: 5px; align-items: center; }
+.typing-dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); animation: bounce 1.2s infinite; }
+.typing-dots span:nth-child(2){animation-delay:0.2s} .typing-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-7px)} }
+.suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.suggestion-btn { font-size: 11px; padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(52,152,219,0.3); background: rgba(52,152,219,0.06); color: var(--blue); cursor: pointer; font-family: Cairo, sans-serif; transition: 0.2s; }
+body.dark .suggestion-btn { color: var(--cyan); }
+.suggestion-btn:hover { background: var(--blue); color: white; border-color: transparent; }
+#aiFooter { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: white; border-top: 1px solid rgba(0,0,0,0.07); flex-shrink: 0; }
+body.dark #aiFooter { background: #1e293b; border-color: rgba(255,255,255,0.07); }
+#aiInput { flex: 1; padding: 10px 14px; border: 1.5px solid rgba(52,152,219,0.2); border-radius: 50px; outline: none; font-family: Cairo, sans-serif; font-size: 13px; direction: rtl; background: #f8fafc; color: inherit; transition: 0.3s; }
+body.dark #aiInput { background: #0f172a; color: #e2e8f0; }
+#aiInput:focus { border-color: var(--blue); }
+#aiInput::placeholder { color: #94a3b8; }
+.sendBtn { width: 40px; height: 40px; border-radius: 50%; border: none; background: linear-gradient(135deg, var(--blue), var(--cyan)); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; box-shadow: 0 4px 15px rgba(52,152,219,0.4); flex-shrink: 0; }
+.sendBtn:hover { transform: scale(1.1); }
+.sendBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+html, body { width: 100%; overflow-x: hidden; }
+
+@media (max-width: 768px) {
+    .navbar { top: 10px !important; width: 95% !important; }
+    #translateBtn span.t-label { display: none; }
+    #translateBtn { padding: 0 12px !important; margin-right: 4px; }
+}
+@media (max-width: 480px) {
+    .navbar { top: 8px !important; padding: 10px 14px !important; }
+    #aiPanel { left: 8px !important; width: calc(100vw - 16px) !important; }
+    #aiFab { left: 10px !important; bottom: 10px !important; }
+    #modeBtn { right: 10px !important; bottom: 10px !important; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Translation Overlay -->
+<div id="translateOverlay">
+    <div class="translate-spinner"></div>
+    <div class="translate-overlay-text" id="overlayText">جارٍ الترجمة...</div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+    <div class="logo" data-ar="🏫 مدرسة السلطان قابوس" data-en="🏫 Sultan Qaboos School">🏫 مدرسة السلطان قابوس</div>
+    <div class="nav-links">
+   <a href="school_translated.html" data-ar="الرئيسية" data-en="Home">الرئيسية</a>
+        <a href="school_about.html" class="active" data-ar="عن المدرسة" data-en="About">عن المدرسة</a>
+        <a href="news_page.html" data-ar="الأخبار" data-en="News">الأخبار</a>
+        <a href="art_culture_v3.html" data-ar="المعرض الفني" data-en="Art Gallery">المعرض الفني</a>
+
+        <button id="translateBtn" onclick="toggleLanguage()">
+            <span class="t-icon">🌐</span>
+            <span class="t-label" id="translateLabel">English</span>
+        </button>
+    </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+    <div class="hero-tag" data-ar="📡 أخبار حية ومستمرة" data-en="📡 Live & Ongoing News">📡 أخبار حية ومستمرة</div>
+    <h1 data-ar="آخر الأخبار" data-en="Latest News">آخر الأخبار</h1>
+    <p data-ar="تابع أحدث أخبار وفعاليات مدرسة السلطان قابوس لحظةً بلحظة" data-en="Follow the latest news and events of Sultan Qaboos School moment by moment">تابع أحدث أخبار وفعاليات مدرسة السلطان قابوس لحظةً بلحظة</p>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" onclick="filterNews('all',this)" data-ar="الكل" data-en="All">الكل</button>
+    <button class="filter-btn" onclick="filterNews('تسجيل',this)" data-ar="التسجيل" data-en="Registration" data-cat-ar="تسجيل" data-cat-en="registration">التسجيل</button>
+    <button class="filter-btn" onclick="filterNews('فعاليات',this)" data-ar="الفعاليات" data-en="Events" data-cat-ar="فعاليات" data-cat-en="events">الفعاليات</button>
+    <button class="filter-btn" onclick="filterNews('إنجازات',this)" data-ar="الإنجازات" data-en="Achievements" data-cat-ar="إنجازات" data-cat-en="achievements">الإنجازات</button>
+</div>
+
+<!-- News Grid -->
+<div class="news-grid" id="newsGrid">
+
+    <div class="news-card" data-cat="تسجيل" data-cat-en="registration">
+        <div class="news-img"></div>
+        <div class="news-body">
+            <div class="news-meta">
+                <span class="news-category" data-ar="تسجيل" data-en="Registration">تسجيل</span>
+                <span class="news-date" data-ar="📅 24 أبريل 2026" data-en="📅 April 24, 2026">📅 24 أبريل 2026</span>
+            </div>
+            <h3 data-ar="فتح باب التسجيل للعام الدراسي الجديد" data-en="Registration Open for the New Academic Year">فتح باب التسجيل للعام الدراسي الجديد</h3>
+            <p data-ar="تعلن المدرسة عن بدء التسجيل للطلاب الجدد مع توفير جميع التسهيلات لأولياء الأمور." data-en="The school announces the start of registration for new students with all facilities provided for parents.">تعلن المدرسة عن بدء التسجيل للطلاب الجدد مع توفير جميع التسهيلات لأولياء الأمور.</p>
+            <div class="news-footer">
+                <a href="#" class="read-more" data-ar="اقرأ المزيد" data-en="Read More">اقرأ المزيد <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                <span class="news-views" data-ar="👁 128 مشاهدة" data-en="👁 128 views">👁 128 مشاهدة</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="news-card" data-cat="فعاليات" data-cat-en="events">
+        <div class="news-img" style="background:linear-gradient(90deg,#f093fb,#f5576c)"></div>
+        <div class="news-body">
+            <div class="news-meta">
+                <span class="news-category" style="color:#e91e63;border-color:rgba(233,30,99,0.2);background:rgba(233,30,99,0.08)" data-ar="فعاليات" data-en="Events">فعاليات</span>
+                <span class="news-date" data-ar="📅 20 أبريل 2026" data-en="📅 April 20, 2026">📅 20 أبريل 2026</span>
+            </div>
+            <h3 data-ar="فعالية يوم العلم الوطني" data-en="National Science Day Event">فعالية يوم العلم الوطني</h3>
+            <p data-ar="تم تنظيم احتفال مميز بمشاركة جميع الطلاب في أجواء وطنية رائعة مليئة بالفخر والانتماء." data-en="A special celebration was organized with the participation of all students in a wonderful national atmosphere full of pride and belonging.">تم تنظيم احتفال مميز بمشاركة جميع الطلاب في أجواء وطنية رائعة مليئة بالفخر والانتماء.</p>
+            <div class="news-footer">
+                <a href="#" class="read-more" style="color:#e91e63" data-ar="اقرأ المزيد" data-en="Read More">اقرأ المزيد <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                <span class="news-views" data-ar="👁 214 مشاهدة" data-en="👁 214 views">👁 214 مشاهدة</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="news-card" data-cat="إنجازات" data-cat-en="achievements">
+        <div class="news-img" style="background:linear-gradient(90deg,#43e97b,#38f9d7)"></div>
+        <div class="news-body">
+            <div class="news-meta">
+                <span class="news-category" style="color:#059669;border-color:rgba(5,150,105,0.2);background:rgba(5,150,105,0.08)" data-ar="إنجازات" data-en="Achievements">إنجازات</span>
+                <span class="news-date" data-ar="📅 15 أبريل 2026" data-en="📅 April 15, 2026">📅 15 أبريل 2026</span>
+            </div>
+            <h3 data-ar="فوز المدرسة بالمركز الأول في مسابقة العلوم" data-en="School Wins First Place in Science Competition">فوز المدرسة بالمركز الأول في مسابقة العلوم</h3>
+            <p data-ar="حقق فريق المدرسة المركز الأول على مستوى المحافظة في مسابقة العلوم السنوية." data-en="The school team achieved first place at the governorate level in the annual science competition.">حقق فريق المدرسة المركز الأول على مستوى المحافظة في مسابقة العلوم السنوية.</p>
+            <div class="news-footer">
+                <a href="#" class="read-more" style="color:#059669" data-ar="اقرأ المزيد" data-en="Read More">اقرأ المزيد <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                <span class="news-views" data-ar="👁 376 مشاهدة" data-en="👁 376 views">👁 376 مشاهدة</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="news-card" data-cat="فعاليات" data-cat-en="events">
+        <div class="news-img" style="background:linear-gradient(90deg,#fa709a,#fee140)"></div>
+        <div class="news-body">
+            <div class="news-meta">
+                <span class="news-category" style="color:#e91e63;border-color:rgba(233,30,99,0.2);background:rgba(233,30,99,0.08)" data-ar="فعاليات" data-en="Events">فعاليات</span>
+                <span class="news-date" data-ar="📅 10 أبريل 2026" data-en="📅 April 10, 2026">📅 10 أبريل 2026</span>
+            </div>
+            <h3 data-ar="معرض الفنون والإبداع الطلابي" data-en="Student Arts & Creativity Exhibition">معرض الفنون والإبداع الطلابي</h3>
+            <p data-ar="أقامت المدرسة معرضاً للأعمال الفنية الطلابية بمشاركة واسعة من الطلاب وأولياء الأمور." data-en="The school held an exhibition of student artwork with wide participation from students and parents.">أقامت المدرسة معرضاً للأعمال الفنية الطلابية بمشاركة واسعة من الطلاب وأولياء الأمور.</p>
+            <div class="news-footer">
+                <a href="#" class="read-more" style="color:#e91e63" data-ar="اقرأ المزيد" data-en="Read More">اقرأ المزيد <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                <span class="news-views" data-ar="👁 189 مشاهدة" data-en="👁 189 views">👁 189 مشاهدة</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="news-card" data-cat="إنجازات" data-cat-en="achievements">
+        <div class="news-img" style="background:linear-gradient(90deg,#a18cd1,#fbc2eb)"></div>
+        <div class="news-body">
+            <div class="news-meta">
+                <span class="news-category" style="color:#059669;border-color:rgba(5,150,105,0.2);background:rgba(5,150,105,0.08)" data-ar="إنجازات" data-en="Achievements">إنجازات</span>
+                <span class="news-date" data-ar="📅 5 أبريل 2026" data-en="📅 April 5, 2026">📅 5 أبريل 2026</span>
+            </div>
+            <h3 data-ar="تكريم الطلاب المتفوقين للفصل الثاني" data-en="Honor Roll Ceremony for Second Semester">تكريم الطلاب المتفوقين للفصل الثاني</h3>
+            <p data-ar="احتفت المدرسة بتكريم أوائل الطلاب في الفصل الدراسي الثاني بحفل مميز ورائع." data-en="The school celebrated honoring top students in the second semester with a special and wonderful ceremony.">احتفت المدرسة بتكريم أوائل الطلاب في الفصل الدراسي الثاني بحفل مميز ورائع.</p>
+            <div class="news-footer">
+                <a href="#" class="read-more" style="color:#059669" data-ar="اقرأ المزيد" data-en="Read More">اقرأ المزيد <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                <span class="news-views" data-ar="👁 421 مشاهدة" data-en="👁 421 views">👁 421 مشاهدة</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="news-card" data-cat="تسجيل" data-cat-en="registration">
+        <div class="news-img" style="background:linear-gradient(90deg,#4facfe,#00f2fe)"></div>
+        <div class="news-body">
+            <div class="news-meta">
+                <span class="news-category" data-ar="تسجيل" data-en="Registration">تسجيل</span>
+                <span class="news-date" data-ar="📅 1 أبريل 2026" data-en="📅 April 1, 2026">📅 1 أبريل 2026</span>
+            </div>
+            <h3 data-ar="إعلان نتائج القبول للعام الجديد" data-en="Admission Results Announced for New Year">إعلان نتائج القبول للعام الجديد</h3>
+            <p data-ar="تعلن إدارة المدرسة عن نتائج قبول الطلاب الجدد ويمكن الاستعلام عبر إدارة المدرسة مباشرةً." data-en="The school administration announces the results of new student admissions, and inquiries can be made directly through the school administration.">تعلن إدارة المدرسة عن نتائج قبول الطلاب الجدد ويمكن الاستعلام عبر إدارة المدرسة مباشرةً.</p>
+            <div class="news-footer">
+                <a href="#" class="read-more" data-ar="اقرأ المزيد" data-en="Read More">اقرأ المزيد <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                <span class="news-views" data-ar="👁 532 مشاهدة" data-en="👁 532 views">👁 532 مشاهدة</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<div class="page-footer">
+    <strong data-ar="مدرسة السلطان قابوس" data-en="Sultan Qaboos School">مدرسة السلطان قابوس</strong><br>
+    📱 00000000 &nbsp;|&nbsp; 📧 school@example.com &nbsp;|&nbsp;
+    <span data-ar="📍 سلطنة عُمان" data-en="📍 Sultanate of Oman">📍 سلطنة عُمان</span>
+</div>
+
+<button id="modeBtn" onclick="toggleMode()">🌙</button>
+<button id="aiFab" onclick="toggleAI()">🤖</button>
+
+<div id="aiPanel">
+    <div id="aiTop">
+        <div class="ai-info">
+            <div class="ai-avatar">🤖</div>
+            <div>
+                <div class="ai-name" data-ar="المساعد الذكي" data-en="AI Assistant">المساعد الذكي</div>
+                <div class="ai-status" data-ar="متصل الآن" data-en="Online Now">متصل الآن</div>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+            <span class="ai-badge">Groq AI</span>
+            <button class="aiClose" onclick="toggleAI()">✕</button>
+        </div>
+    </div>
+    <div id="aiBody">
+        <div class="msg-ai" data-ar="👋 مرحباً! أنا مساعد مدرسة السلطان قابوس. كيف أستطيع مساعدتك؟" data-en="👋 Hello! I'm the Sultan Qaboos School assistant. How can I help you?">👋 مرحباً! أنا مساعد مدرسة السلطان قابوس. كيف أستطيع مساعدتك؟</div>
+        <div class="suggestions">
+            <button class="suggestion-btn" onclick="quickAsk('كيف أسجّل في المدرسة؟')" data-ar="📝 التسجيل" data-en="📝 Registration">📝 التسجيل</button>
+            <button class="suggestion-btn" onclick="quickAsk('ما آخر أخبار المدرسة؟')" data-ar="📰 الأخبار" data-en="📰 News">📰 الأخبار</button>
+            <button class="suggestion-btn" onclick="quickAsk('ما مواعيد الدوام؟')" data-ar="⏰ الدوام" data-en="⏰ Schedule">⏰ الدوام</button>
+        </div>
+    </div>
+    <div id="aiFooter">
+        <input id="aiInput" placeholder="اكتب سؤالك..." data-ar-placeholder="اكتب سؤالك..." data-en-placeholder="Type your question...">
+        <button class="sendBtn" id="sendBtn" onclick="aiReply()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+    </div>
+</div>
+
+<script>
+// ====================================================
+// Language Toggle
+// ====================================================
+let currentLang = 'ar';
+let currentFilter = 'all';
+
+function toggleLanguage() {
+    const overlay = document.getElementById('translateOverlay');
+    const overlayText = document.getElementById('overlayText');
+    overlay.classList.add('show');
+    overlayText.textContent = currentLang === 'ar' ? 'Translating to English...' : 'جارٍ الترجمة إلى العربية...';
+    setTimeout(() => {
+        currentLang = currentLang === 'ar' ? 'en' : 'ar';
+        applyLanguage(currentLang);
+        overlay.classList.remove('show');
+    }, 600);
+}
+
+function applyLanguage(lang) {
+    const isEn = lang === 'en';
+    const body = document.body;
+    const html = document.getElementById('htmlRoot');
+    const label = document.getElementById('translateLabel');
+    const aiInput = document.getElementById('aiInput');
+
+    if (isEn) {
+        body.classList.add('ltr');
+        html.setAttribute('lang', 'en');
+        body.style.direction = 'ltr';
+        label.textContent = 'عربي';
+        aiInput.style.direction = 'ltr';
+        aiInput.placeholder = 'Type your question...';
+    } else {
+        body.classList.remove('ltr');
+        html.setAttribute('lang', 'ar');
+        body.style.direction = 'rtl';
+        label.textContent = 'English';
+        aiInput.style.direction = 'rtl';
+        aiInput.placeholder = 'اكتب سؤالك...';
+    }
+
+    // Translate all tagged elements
+    document.querySelectorAll('[data-ar][data-en]').forEach(el => {
+        const text = el.getAttribute(isEn ? 'data-en' : 'data-ar');
+        if (!text) return;
+        if (['H1','H2','H3'].includes(el.tagName)) {
+            el.innerHTML = text;
+        } else if (el.classList.contains('read-more')) {
+            // Keep the SVG arrow, just update text
+            const svg = el.querySelector('svg');
+            el.textContent = text + ' ';
+            if (svg) el.appendChild(svg);
+        } else {
+            el.textContent = text;
+        }
+    });
+
+    // Update filter buttons onclick to use correct category keys
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        const catAr = btn.getAttribute('data-cat-ar');
+        const catEn = btn.getAttribute('data-cat-en');
+        if (catAr && catEn) {
+            const activeCat = isEn ? catEn : catAr;
+            btn.setAttribute('onclick', `filterNews('${activeCat}',this)`);
+        } else {
+            btn.setAttribute('onclick', `filterNews('all',this)`);
+        }
+    });
+
+    // Update news-card data-cat matching
+    document.querySelectorAll('.news-card').forEach(card => {
+        if (isEn) {
+            card.setAttribute('data-active-cat', card.getAttribute('data-cat-en') || '');
+        } else {
+            card.setAttribute('data-active-cat', card.getAttribute('data-cat') || '');
+        }
+    });
+
+    // Re-apply current filter
+    reapplyFilter();
+
+    // Update AI suggestion buttons
+    const suggBtns = document.querySelectorAll('.suggestion-btn');
+    if (isEn) {
+        const enQ = ['How do I register at the school?', 'What is the latest school news?', 'What are the school hours?'];
+        suggBtns.forEach((b, i) => { if (enQ[i]) b.setAttribute('onclick', `quickAsk('${enQ[i]}')`); });
+    } else {
+        const arQ = ['كيف أسجّل في المدرسة؟', 'ما آخر أخبار المدرسة؟', 'ما مواعيد الدوام؟'];
+        suggBtns.forEach((b, i) => { if (arQ[i]) b.setAttribute('onclick', `quickAsk('${arQ[i]}')`); });
+    }
+
+    localStorage.setItem('lang', lang);
+}
+
+function reapplyFilter() {
+    const isEn = currentLang === 'en';
+    document.querySelectorAll('.news-card').forEach(card => {
+        const catAttr = isEn ? card.getAttribute('data-cat-en') : card.getAttribute('data-cat');
+        if (currentFilter === 'all' || catAttr === currentFilter) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function filterNews(cat, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = cat;
+    reapplyFilter();
+}
+
+// ====================================================
+// Groq AI
+// ====================================================
+// API key removed - using secure proxy
+const SYSTEM_PROMPT = `أنت مساعد ذكي لمدرسة السلطان قابوس في سلطنة عُمان.
+تجيب باللغة العربية فقط بأسلوب ودود ومختصر.
+معلومات المدرسة:
+- التسجيل مفتوح للطلاب الجدد
+- الأخبار: فتح التسجيل، فعالية يوم العلم، فوز في مسابقة العلوم، معرض الفنون، تكريم المتفوقين
+- الدوام يبدأ صباحاً
+- بيئة تعليمية حديثة ومتميزة
+أجب بجملتين أو ثلاث، وإذا لم تعرف اقترح التواصل مع الإدارة.`;
+
+let chatHistory = [];
+let isLoading = false;
+
+async function aiReply(customMsg) {
+    if (isLoading) return;
+    const input = document.getElementById("aiInput");
+    const box = document.getElementById("aiBody");
+    const sendBtn = document.getElementById("sendBtn");
+    const msg = customMsg || input.value.trim();
+    if (!msg) return;
+    input.value = "";
+    box.innerHTML += `<div class="msg-user">${escapeHtml(msg)}</div>`;
+    const tid = "t" + Date.now();
+    box.innerHTML += `<div class="msg-ai" id="${tid}"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+    box.scrollTop = box.scrollHeight;
+    chatHistory.push({ role: "user", content: msg });
+    isLoading = true; sendBtn.disabled = true;
+    try {
+        const res = await fetch("https://groq-proxy.sultanqaboosschool12.workers.dev", {
+            method: "POST",
+            headers: { "Content-Type": "application/json",  },
+            body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{ role: "system", content: SYSTEM_PROMPT }, ...chatHistory], max_tokens: 300, temperature: 0.7 })
+        });
+        const data = await res.json();
+        if (data.choices?.[0]) {
+            const reply = data.choices[0].message.content;
+            chatHistory.push({ role: "assistant", content: reply });
+            document.getElementById(tid).innerHTML = reply;
+        } else { throw new Error(data.error?.message || "خطأ"); }
+    } catch (err) {
+        document.getElementById(tid).innerHTML = "⚠️ خطأ: " + escapeHtml(err.message);
+        chatHistory.pop();
+    }
+    isLoading = false; sendBtn.disabled = false;
+    box.scrollTop = box.scrollHeight;
+}
+
+function quickAsk(msg) { aiReply(msg); }
+function escapeHtml(t) { return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function toggleAI() {
+    const p = document.getElementById("aiPanel");
+    p.style.display = p.style.display === "flex" ? "none" : "flex";
+}
+function toggleMode() {
+    document.body.classList.toggle("dark");
+    const isDark = document.body.classList.contains("dark");
+    localStorage.setItem("mode", isDark ? "dark" : "light");
+    document.getElementById("modeBtn").innerHTML = isDark ? "☀️" : "🌙";
+}
+
+let lastY = 0;
+window.addEventListener("scroll", () => {
+    const nav = document.getElementById("navbar");
+    const curr = window.pageYOffset;
+    nav.style.top = curr > lastY && curr > 80 ? "-90px" : "15px";
+    lastY = curr;
+});
+
+window.addEventListener("load", () => {
+    document.body.classList.add("loaded");
+    if (localStorage.getItem("mode") === "dark") {
+        document.body.classList.add("dark");
+        document.getElementById("modeBtn").innerHTML = "☀️";
+    }
+    const savedLang = localStorage.getItem('lang');
+    if (savedLang && savedLang !== 'ar') {
+        currentLang = savedLang;
+        applyLanguage(savedLang);
+    }
+    // init active-cat
+    document.querySelectorAll('.news-card').forEach(card => {
+        card.setAttribute('data-active-cat', card.getAttribute('data-cat') || '');
+    });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("aiInput").addEventListener("keydown", e => {
+        if (e.key === "Enter") { e.preventDefault(); aiReply(); }
+    });
+});
+
+document.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", function(e) {
+        const href = this.getAttribute("href");
+        if (href && !href.startsWith("#")) {
+            e.preventDefault();
+            document.body.classList.remove("loaded");
+            setTimeout(() => { window.location.href = href; }, 400);
+        }
+    });
+});
+</script>
+</body>
+</html>
