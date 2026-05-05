@@ -426,11 +426,6 @@ html, body { width: 100%; overflow-x: hidden; }
     #aiFab { left: 10px !important; bottom: 10px !important; }
     #modeBtn { right: 10px !important; bottom: 10px !important; }
 }
-    body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
 </style>
 </head>
 <body>
@@ -476,22 +471,17 @@ html, body { width: 100%; overflow-x: hidden; }
             <p data-ar="بيئتنا التعليمية آمنة وعصرية، ونعتمد أحدث التقنيات في خدمة العملية التعليمية." data-en="Our learning environment is safe and modern, and we adopt the latest technologies in service of the educational process.">كمدرسة للبنين، تلتزم السلطان قابوس بتوفير تعليم عالي الجودة وتعزيز التميز الأكاديمي. تخدم المدرسة مجتمع جعلان بني بوعلي، وتلعب دوراً حيوياً في تشكيل مستقبل الطلاب في منطقة محافظه جنوب الشرقيه..</p>
         </div>
         <!-- VIDEO PLACEHOLDER - أضف الفيديو هنا -->
-<div style="border-radius:24px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,0.3);height:320px;position:relative;cursor:pointer;"
-     onclick="window.open('https://www.youtube.com/watch?v=oImPOkewecI','_blank')">
-    <img src="https://img.youtube.com/vi/oImPOkewecI/maxresdefault.jpg"
-         alt="فيديو المدرسة"
-         style="width:100%;height:100%;object-fit:cover;">
-    <!-- زر التشغيل -->
-    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);">
-        <div style="width:72px;height:72px;background:#ff0000;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(255,0,0,0.5);transition:transform 0.3s;"
-             onmouseover="this.style.transform='scale(1.15)'"
-             onmouseout="this.style.transform='scale(1)'">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
-                <path d="M8 5v14l11-7z"/>
-            </svg>
-        </div>
-    </div>
+<div style="border-radius:24px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,0.3);height:320px;">
+    <iframe width="100%" height="100%"
+        src="https://www.youtube.com/embed/oImPOkewecI?si=hx0BrXtDw9WfQl56"
+        title="YouTube video player"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen>
+    </iframe>
 </div>
+    </div>
     
 </div>
 
@@ -760,6 +750,7 @@ html, body { width: 100%; overflow-x: hidden; }
     </div>
 </div>
 
+<!-- Contact -->
 <div class="contact-section hidden">
     <h2 data-ar="📞 تواصل معنا" data-en="📞 Contact Us">📞 تواصل معنا</h2>
     <div class="contact-grid">
@@ -769,7 +760,6 @@ html, body { width: 100%; overflow-x: hidden; }
     </div>
 </div>
 
-    
 <button id="modeBtn" onclick="toggleMode()">🌙</button>
 <button id="aiFab" onclick="toggleAI()">🤖</button>
 
