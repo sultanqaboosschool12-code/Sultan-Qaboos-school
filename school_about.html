@@ -426,6 +426,11 @@ html, body { width: 100%; overflow-x: hidden; }
     #aiFab { left: 10px !important; bottom: 10px !important; }
     #modeBtn { right: 10px !important; bottom: 10px !important; }
 }
+    body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
 </style>
 </head>
 <body>
@@ -756,7 +761,8 @@ html, body { width: 100%; overflow-x: hidden; }
 </div>
 
 <!-- Contact -->
-<div class="contact-section hidden" style="width:100vw;margin-left:calc(-50vw + 50%);margin-right:calc(-50vw + 50%);">    <h2 data-ar="📞 تواصل معنا" data-en="📞 Contact Us">📞 تواصل معنا</h2>
+<div class="contact-section hidden" style="margin-top:auto;width:100vw;margin-left:calc(-50vw + 50%);">  
+    <h2 data-ar="📞 تواصل معنا" data-en="📞 Contact Us">📞 تواصل معنا</h2>
     <div class="contact-grid">
         <div class="contact-item">📱 97869403 </div>
         <div class="contact-item">📧 school@example.com</div>
